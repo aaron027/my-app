@@ -63,16 +63,14 @@ pipeline {
 
         stage('Deploy Image to ECS') {
             steps{
-                // prepare task definition file
-                sh """sed -e "s;%REPOSITORY_URI%;${REPOSITORY_URI};g" -e "s;%SHORT_COMMIT%;${IMAGE_TAG};g" -e "s;%TASK_FAMILY%;${TASK_FAMILY};g" -e "s;%SERVICE_NAME%;${SERVICE_NAME};g" -e "s;%EXECUTION_ROLE_ARN%;${EXECUTION_ROLE_ARN};g" taskdef_template.json > taskdef_${IMAGE_TAG}.json"""
+                // update service
+               
                 script {
-                    // Register task definition
-                    AWS("ecs register-task-definition --output json --cli-input-json file://${WORKSPACE}/taskdef_${IMAGE_TAG}.json > ${env.WORKSPACE}/temp.json")
-                    def projects = readJSON file: "${env.WORKSPACE}/temp.json"
-                    def TASK_REVISION = projects.taskDefinition.revision
-
-                    // update service
-                    AWS("ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_FAMILY}:${TASK_REVISION} --desired-count ${DESIRED_COUNT}")
+                   
+                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                        sh "ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --force-new-deployment"
+                    }
+                  
                 }
             }
         }
