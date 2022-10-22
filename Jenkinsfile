@@ -5,7 +5,7 @@ pipeline {
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="myapp"
         IMAGE_TAG="v1.0.0"
-        tag = sh(returnStdout: true, script: "git rev-parse --short=5 HEAD ")
+        HASH_TAG = sh(returnStdout: true, script: "git rev-parse --short=5 HEAD ")
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
     options {
@@ -35,15 +35,13 @@ pipeline {
   
     // Building Docker images
         stage('Building image') {
-        steps{
-            script {
-            withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                
-                        dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${tag}"
-                
+            steps{
+                script {
+                withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                    dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${HASH_TAG}"     
+                }
+                }
             }
-            }
-        }
         }
 
     // Uploading Docker images into AWS ECR
