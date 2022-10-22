@@ -14,6 +14,7 @@ pipeline {
         timeout(time: 150, unit: "MINUTES")
     }
     stages {
+        //login to ecr
         stage('Logging into AWS ECR') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
@@ -24,7 +25,7 @@ pipeline {
                  
             }
         }
-        
+
         stage('Cloning Git') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
