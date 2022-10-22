@@ -4,7 +4,7 @@ pipeline {
         AWS_ACCOUNT_ID="026376606405"
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="myapp"
-        IMAGE_TAG="latest"
+        IMAGE_TAG="v1.0.1"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
     options {
@@ -47,8 +47,9 @@ pipeline {
      steps{  
         withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
             script {
+                    export GIT_COMMIT = $(git log -l --format=%h)
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
-                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}-${GIT_COMMIT}"
             }
         }
         }
