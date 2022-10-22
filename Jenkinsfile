@@ -61,7 +61,7 @@ pipeline {
         stage('Cloning Git from terraform') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/aaron027/p3_junglemeet.git']]])
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/aaron027/tf_junglemeet.git']]])
                 }
             }
         }
