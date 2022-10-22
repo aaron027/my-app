@@ -4,9 +4,13 @@ pipeline {
         AWS_ACCOUNT_ID="026376606405"
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="myapp"
-        IMAGE_TAG="v1.0.0"
-        HASH_TAG = sh(returnStdout: true, script: "git rev-parse --short=5 HEAD").trim()
+        IMAGE_TAG= sh(returnStdout: true, script: "git rev-parse --short=5 HEAD").trim()
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+        SERVICE_NAME = 'junglemeet-service-dev'
+        TASK_FAMILY="junglemeet-task-dev" // at least one container needs to have the same name as the task definition
+        DESIRED_COUNT="2"
+        CLUSTER_NAME = "junglemeet-cluster-dev"
+        EXECUTION_ROLE_ARN = "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
     }
     options {
         ansiColor('xterm')
@@ -50,50 +54,29 @@ pipeline {
             steps{
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}-${HASH_TAG}"
-                        sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}-${HASH_TAG}"
+                        sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
+                        sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
          }
 
-    // Uploading Docker images into AWS ECR
-        stage('Cloning Git from terraform') {
-            steps {
-                withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/aaron027/tf_junglemeet.git']]])
-                }
-            }
-        }
-
-        stage("start ecs service") {
+        stage('Deploy Image to ECS') {
             steps{
+                // prepare task definition file
+                sh """sed -e "s;%REPOSITORY_URI%;${REPOSITORY_URI};g" -e "s;%SHORT_COMMIT%;${IMAGE_TAG};g" -e "s;%TASK_FAMILY%;${TASK_FAMILY};g" -e "s;%SERVICE_NAME%;${SERVICE_NAME};g" -e "s;%EXECUTION_ROLE_ARN%;${EXECUTION_ROLE_ARN};g" taskdef_template.json > taskdef_${IMAGE_TAG}.json"""
                 script {
-                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        dir('backend'){
-                            sh '''
-                            terraform init
-                            terraform validate
-                            terraform apply -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
-                            '''
-                        }
-                    }
+                    // Register task definition
+                    AWS("ecs register-task-definition --output json --cli-input-json file://${WORKSPACE}/taskdef_${IMAGE_TAG}.json > ${env.WORKSPACE}/temp.json")
+                    def projects = readJSON file: "${env.WORKSPACE}/temp.json"
+                    def TASK_REVISION = projects.taskDefinition.revision
+
+                    // update service
+                    AWS("ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_FAMILY}:${TASK_REVISION} --desired-count ${DESIRED_COUNT}")
                 }
             }
         }
-        // stage("destoy ecs service") {
-        //     steps{
-        //         script {
-        //             withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-        //                 dir('backend'){
-        //                     sh '''
-        //                     terraform destroy -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
-        //                     '''
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+      
     }
     post {
         always{

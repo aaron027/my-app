@@ -1,0 +1,23 @@
+{
+    "family": "%TASK_FAMILY%",
+    "networkMode": "awsvpc",
+    "executionRoleArn": "%EXECUTION_ROLE_ARN%",
+    "containerDefinitions": [
+      {
+        "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
+        "name": "%SERVICE_NAME%",
+        "cpu": 1024,
+        "memory": 256,
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 3000,
+            "hostPort": 3000
+          }
+        ]
+      }
+    ],
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "512",
+    "memory": "1024"
+  }
