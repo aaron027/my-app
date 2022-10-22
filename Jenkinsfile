@@ -37,11 +37,14 @@ pipeline {
     // Building Docker images
     stage('Building image') {
       steps{
-        script {
+        
           withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-            dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+            sh '''#!/usr/bin/env bash
+                    export GIT_COMMIT=$( git log -1 --format=%h)
+                    dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
+            '''
           }
-        }
+        
       }
     }
    
@@ -51,7 +54,6 @@ pipeline {
         withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
            sh '''#!/usr/bin/env bash
                     export GIT_COMMIT=$( git log -1 --format=%h)
-                    echo $GIT_COMMIT
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG-$GIT_COMMIT"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
             '''
