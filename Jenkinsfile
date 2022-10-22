@@ -4,8 +4,10 @@ pipeline {
         AWS_ACCOUNT_ID="026376606405"
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="myapp"
-        IMAGE_TAG="v1.0.0"
-       
+        sh '''#!/usr/bin/env bash
+            export GIT_COMMIT=$( git log -1 --format=%h) 
+        '''
+        IMAGE_TAG="v1.0.0-${GIT_COMMIT[0..5]}"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
     options {
@@ -39,9 +41,7 @@ pipeline {
       steps{
         script {
           withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-            sh '''#!/usr/bin/env bash
-                    export GIT_COMMIT=$( git log -1 --format=%h) 
-                '''
+            
                     dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${GIT_COMMIT[0..5]}"
             
           }
