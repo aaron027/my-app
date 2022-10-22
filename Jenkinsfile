@@ -81,19 +81,25 @@ pipeline {
                 }
             }
         }
-        // stage("destoy ecs service") {
-        //     steps{
-        //         script {
-        //             withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-        //                 dir('backend'){
-        //                     sh '''
-        //                     terraform destroy -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
-        //                     '''
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage("destoy ecs service") {
+            steps{
+                script {
+                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                        dir('backend'){
+                            sh '''
+                            terraform destroy -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always{
+            echo 'I will always say Hello again! test for webhook'
+            cleanWs()
+        }
     }
     
 }
