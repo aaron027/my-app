@@ -75,7 +75,7 @@ pipeline {
                             terraform init  -migrate-state
                             terraform validate
                             terraform plan -out=junglemeetbackend.plan
-                            terraform apply junglemeetbackend.plan
+                            terraform apply junglemeetbackend.plan -var="image_tag=${IMAGE_TAG}-${HASH_TAG}"
                             '''
                         }
                     }
