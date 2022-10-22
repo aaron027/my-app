@@ -39,7 +39,7 @@ pipeline {
             script {
             withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                 
-                        dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${var.tag}"
+                        dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${tag}"
                 
             }
             }
