@@ -40,7 +40,9 @@ pipeline {
         script {
           withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
             sh '''#!/usr/bin/env bash
-                    export GIT_COMMIT=$( git log -1 --format=%h) echo $GIT_COMMIT'''
+                    export GIT_COMMIT=$( git log -1 --format=%h) 
+                    echo $GIT_COMMIT
+                '''
                     dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
             
           }
