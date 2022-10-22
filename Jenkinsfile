@@ -72,7 +72,7 @@ pipeline {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                         dir('backend'){
                             sh '''
-                            terraform init  -migrate-state
+                            terraform init
                             terraform validate
                             terraform plan 
                             terraform apply -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
