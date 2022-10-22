@@ -74,8 +74,7 @@ pipeline {
                             sh '''
                             terraform init
                             terraform validate
-                            terraform plan 
-                            terraform apply -auto-approve -var="image_tag=${IMAGE_TAG}-${HASH_TAG}"
+                            terraform apply -auto-approve -var=\"image_tag=${IMAGE_TAG}-${HASH_TAG}\"
                             '''
                         }
                     }
