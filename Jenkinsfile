@@ -57,14 +57,14 @@ pipeline {
     //         }
     //      }
 
-    // // Uploading Docker images into AWS ECR
-    //     stage('Cloning Git from terraform') {
-    //         steps {
-    //             withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-    //                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/aaron027/p3_junglemeet.git']]])
-    //             }
-    //         }
-    //     }
+    // Uploading Docker images into AWS ECR
+        stage('Cloning Git from terraform') {
+            steps {
+                withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                    checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/aaron027/p3_junglemeet.git']]])
+                }
+            }
+        }
 
     //     stage("start ecs service") {
     //         steps{
@@ -86,9 +86,11 @@ pipeline {
         stage('terraform destroy') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                    sh '''
+                    dir('backend'){
+                        sh '''
                             terraform destroy -auto-approve
                             '''
+                    }
                 }
             }
         }
