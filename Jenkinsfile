@@ -47,16 +47,7 @@ pipeline {
         }
 
     // Uploading Docker images into AWS ECR
-        stage('Building image') {
-            steps{
-                script {
-                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${var.tag}
-                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${var.tag}
-                    }
-                }
-            }
-        }
+        
     }
     
 }
