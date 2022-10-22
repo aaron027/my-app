@@ -18,7 +18,6 @@ pipeline {
         timestamps()
         timeout(time: 150, unit: "MINUTES")
     }
-    def taskDefile      = "file://taskdef_template-${IMAGE_TAG}.json"
     stages {
         //login to ecr
         stage('Logging into AWS ECR') {
@@ -125,7 +124,7 @@ pipeline {
         // Register the new [TaskDefinition]
         sh  "                                                                     \
           aws ecs register-task-definition  --family ${TASK_FAMILY}                \
-                                            --cli-input-json ${taskDefile}        \
+                                            --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}        \
         "
 
         // Get the last registered [TaskDefinition#revision]
