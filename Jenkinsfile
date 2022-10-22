@@ -14,10 +14,6 @@ pipeline {
         timeout(time: 150, unit: "MINUTES")
     }
     stages {
-         sh '''#!/usr/bin/env bash
-            export GIT_COMMIT=$( git log -1 --format=%h) 
-         '''
-
          stage('Logging into AWS ECR') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
@@ -54,12 +50,12 @@ pipeline {
     stage('Pushing to ECR') {
      steps{  
         withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-           script{
-                    docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${var.tag}
-                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${var.tag}
+             docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${var.tag}
+             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${var.tag}
            }
         }
-        }
-      }
+     }
+     }
+     }
     
 }
