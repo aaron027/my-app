@@ -64,13 +64,10 @@ pipeline {
         stage('Deploy Image to ECS') {
             steps{
                 // update service
-               
                 script {
-                   
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh "ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --force-new-deployment"
+                        sh "ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --force-new-deployment --region ${AWS_DEFAULT_REGION}"
                     }
-                  
                 }
             }
         }
