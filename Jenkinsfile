@@ -67,20 +67,30 @@ pipeline {
         }
 
         stage("start ecs service") {
-        steps{
-            script {
-                withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                    dir('backend'){
-                        sh '''
-                        terraform init  -migrate-state
-                        terraform validate
-                        terraform plan -out=junglemeetbackend.plan
-                        terraform apply junglemeetbackend.plan
-                        '''
+            steps{
+                script {
+                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                        dir('backend'){
+                            sh '''
+                            terraform init  -migrate-state
+                            terraform validate
+                            terraform plan -out=junglemeetbackend.plan
+                            terraform apply junglemeetbackend.plan
+                            '''
+                        }
                     }
                 }
             }
         }
+
+        stage('terraform destroy') {
+            steps {
+                withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                    sh '''
+                            terraform destroy -auto-approve
+                            '''
+                }
+            }
         }
     }
     
