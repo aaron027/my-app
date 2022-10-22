@@ -45,7 +45,7 @@ pipeline {
         }
 
     // Uploading Docker images into AWS ECR
-         stage(‘Pushing to ECR’) {
+         stage("Pushing to ECR") {
             steps{
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
