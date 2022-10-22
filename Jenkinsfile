@@ -5,8 +5,8 @@ pipeline {
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="myapp"
         IMAGE_TAG="v1.0.0"
-        export GIT_COMMIT=$( git log -1 --format=%h)
-        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}-$GIT_COMMIT"
+       
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
     options {
         ansiColor('xterm')
@@ -49,11 +49,12 @@ pipeline {
     stage('Pushing to ECR') {
      steps{  
         withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-            script {
-                    
+           sh '''#!/usr/bin/env bash
+                    export GIT_COMMIT=$( git log -1 --format=%h)
+                    echo $GIT_COMMIT
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
-            }
+            '''
         }
         }
       }
