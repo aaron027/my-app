@@ -14,7 +14,7 @@ pipeline {
         timeout(time: 150, unit: "MINUTES")
     }
     stages {
-         stage('Logging into AWS ECR') {
+        stage('Logging into AWS ECR') {
             steps {
                 withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                     script {
@@ -34,28 +34,29 @@ pipeline {
         }
   
     // Building Docker images
-    stage('Building image') {
-      steps{
-        script {
-          withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-            
-                    dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${var.tag}"
-            
-          }
+        stage('Building image') {
+        steps{
+            script {
+            withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                
+                        dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-${var.tag}"
+                
+            }
+            }
         }
-      }
-    }
-   
+        }
+
     // Uploading Docker images into AWS ECR
-    stage('Pushing to ECR') {
-     steps{  
-        withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-             docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${var.tag}
-             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${var.tag}
-           }
+        stage('Building image') {
+            steps{
+                script {
+                    withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
+                        docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${var.tag}
+                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${var.tag}
+                    }
+                }
+            }
         }
-     }
-     }
-     }
+    }
     
 }
