@@ -11,7 +11,7 @@ pipeline {
         DESIRED_COUNT="2"
         CLUSTER_NAME = "junglemeet-cluster-dev"
         EXECUTION_ROLE_ARN = "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
-        AWS_ECS_TASK_DEFINITION_PATH = './taskdef_template.json'
+        AWS_ECS_TASK_DEFINITION_PATH = 'taskdef_template.json'
     }
     options {
         ansiColor('xterm')
