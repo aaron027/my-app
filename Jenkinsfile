@@ -37,14 +37,14 @@ pipeline {
     // Building Docker images
     stage('Building image') {
       steps{
-        
+        script {
           withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
             sh '''#!/usr/bin/env bash
                     export GIT_COMMIT=$( git log -1 --format=%h)
-                    dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
+            dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}-$GIT_COMMIT"
             '''
           }
-        
+        }
       }
     }
    
