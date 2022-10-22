@@ -49,8 +49,8 @@ pipeline {
             steps{
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG--${HASH_TAG}
-                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}--${HASH_TAG}     
+                        sh “docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}-${HASH_TAG}”
+                        sh “docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}-${HASH_TAG}”  
                     }
                 }
             }
