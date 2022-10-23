@@ -67,72 +67,22 @@ pipeline {
                 // update service
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh  "                                                                     \
-          sed -e  's;%IMAGE_TAG%;${IMAGE_TAG};g'                             \
-                  taskdef_template.json >                                      \
-                  taskdef_template.json-${IMAGE_TAG}.json                      \
-        "
-
-        // Get current [TaskDefinition#revision-number]
-        def currTaskDef = sh (
-          returnStdout: true,
-          script:  "                                                              \
-            aws ecs describe-task-definition  --task-definition ${TASK_FAMILY}     \
-                                              | egrep 'revision'                  \
-                                              | tr ',' ' '                        \
-                                              | awk '{print \$2}'                 \
-          "
-        ).trim()
-
-        def currentTask = sh (
-          returnStdout: true,
-          script:  "                                                              \
-            aws ecs list-tasks  --cluster ${CLUSTER_NAME}                          \
-                                --family ${TASK_FAMILY}                            \
-                                --output text                                     \
-                                | egrep 'TASKARNS'                                \
-                                | awk '{print \$2}'                               \
-          "
-        ).trim()
-
-        
-        if(currTaskDef) {
-          sh  "                                                                   \
-            aws ecs update-service  --cluster ${CLUSTER_NAME}                      \
-                                    --service ${SERVICE_NAME}                      \
-                                    --task-definition ${TASK_FAMILY}:${currTaskDef}\
-                                    --desired-count 0                             \
-          "
-        }
-        if (currentTask) {
-          sh "aws ecs stop-task --cluster ${CLUSTER_NAME} --task ${currentTask}"
-        }
-
-        // Register the new [TaskDefinition]
-        sh  "                                                                     \
-          aws ecs register-task-definition  --family ${TASK_FAMILY}                \
-                                            --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}        \
-        "
-
-        // Get the last registered [TaskDefinition#revision]
-        def taskRevision = sh (
-          returnStdout: true,
-          script:  "                                                              \
-            aws ecs describe-task-definition  --task-definition ${TASK_FAMILY}     \
-                                              | egrep 'revision'                  \
-                                              | tr ',' ' '                        \
-                                              | awk '{print \$2}'                 \
-          "
-        ).trim()
-
-        // ECS update service to use the newly registered [TaskDefinition#revision]
-        //
-        sh  "                                                                     \
-          aws ecs update-service  --cluster ${CLUSTER_NAME}                        \
-                                  --service ${SERVICE_NAME}                        \
-                                  --task-definition ${TASK_FAMILY}:${taskRevision} \
-                                  --desired-count 1                               \
-        "
+                        sh "aws ecs register-task-definition --family ${FAMILY} --container-definitions '[{ "family": "${TASK_FAMILY}",
+                            "networkMode": "awsvpc", \
+                            "executionRoleArn": "${EXECUTION_ROLE_ARN}", \
+                            "containerDefinitions": [{ \
+                                "image": "${REPOSITORY_URI}:${IMAGE_TAG}", \
+                                "name": "${SERVICE_NAME}", \
+                                "cpu": 512,  \
+                                "memory": 1024, \
+                                "essential": true, \
+                                "portMappings": [{ \
+                                    "containerPort": 3000, \
+                                    "hostPort": 3000  \
+                                }] } ], \
+                            "requiresCompatibilities": ["FARGATE"], \
+                            "cpu": "512", \
+                            "memory": "1024"}]'" 
                     }
                 }
             }
