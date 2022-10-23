@@ -68,7 +68,20 @@ pipeline {
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                         sh "aws ecs register-task-definition --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}"
-                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME}    --desired-count 2"
+                        def TASK_ID =sh(
+                            returnStdout: true,
+                            script "
+                            aws ecs list-tasks --cluster default --desired-status RUNNING --family web-server | egrep "/task/" | tr "/" " " | tr "[" " " |  awk '{print $2}' | sed 's/"$//
+                            "
+                        ).trim()
+                        def TASK_REVISION =sh(
+                            returnStdout: true,
+                            script "
+                            aws ecs describe-task-definition --task-definition web-server | egrep "/revision/" | tr "/" " " | awk '{print $2}' | sed 's/"$//
+                            "
+                        ).trim()
+                        sh "aws ecs stop-task --cluster default --task ${TASK_ID}"
+                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_FAMILY}:${TASK_REVISION} --desired-count 2"
                     }
                 }
             }
