@@ -67,7 +67,8 @@ pipeline {
                 // update service
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME}  --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}  --desired-count 2"
+                        sh "aws ecs register-task-definition --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}"
+                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME}    --desired-count 2"
                     }
                 }
             }
