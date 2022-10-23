@@ -5,7 +5,7 @@
     "containerDefinitions": [
       {
         "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
-        "name": "%SERVICE_NAME%",
+        "name": "junglemeet-service-dev",
         "cpu": 512,
         "memory": 1024,
         "essential": true,
