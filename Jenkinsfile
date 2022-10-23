@@ -70,13 +70,13 @@ pipeline {
                         sh '''
                         aws ecs register-task-definition --family ${TASK_FAMILY} --container-definitions '[
                             {
-                            "family": "${TASK_FAMILY}",
+                            "family": "%TASK_FAMILY%",
                             "networkMode": "awsvpc",
-                            "executionRoleArn": "${EXECUTION_ROLE_ARN}",
+                            "executionRoleArn": "%EXECUTION_ROLE_ARN%",
                             "containerDefinitions": [
                             {
-                                "image": "${REPOSITORY_URI}:${IMAGE_TAG}",
-                                "name": "${SERVICE_NAME}",
+                                "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
+                                "name": "%SERVICE_NAME%",
                                 "cpu": 512,
                                 "memory": 1024,
                                 "essential": true,
