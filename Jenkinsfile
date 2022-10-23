@@ -133,7 +133,7 @@ pipeline {
           aws ecs update-service  --cluster ${CLUSTER_NAME}                        \
                                   --service ${SERVICE_NAME}                        \
                                   --task-definition ${TASK_FAMILY}:${taskRevision} \
-                                  --desired-count 1                               \
+                                  --desired-count 2                              \
         "
                     
                     }
