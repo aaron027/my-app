@@ -67,21 +67,72 @@ pipeline {
                 // update service
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh "aws ecs register-task-definition --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}"
-                        def TASK_ID =sh(
-                            returnStdout: true,
-                            script "
-                            aws ecs list-tasks --cluster default --desired-status RUNNING --family web-server | egrep "/task/" | tr "/" " " | tr "[" " " |  awk '{print $2}' | sed 's/"$//
-                            "
-                        ).trim()
-                        def TASK_REVISION =sh(
-                            returnStdout: true,
-                            script "
-                            aws ecs describe-task-definition --task-definition web-server | egrep "/revision/" | tr "/" " " | awk '{print $2}' | sed 's/"$//
-                            "
-                        ).trim()
-                        sh "aws ecs stop-task --cluster default --task ${TASK_ID}"
-                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_FAMILY}:${TASK_REVISION} --desired-count 2"
+                        sh  "                                                                     \
+          sed -e  's;%IMAGE_TAG%;${IMAGE_TAG};g'                             \
+                  aws/task-definition.json >                                      \
+                  aws/task-definition-${IMAGE_TAG}.json                      \
+        "
+
+        // Get current [TaskDefinition#revision-number]
+        def currTaskDef = sh (
+          returnStdout: true,
+          script:  "                                                              \
+            aws ecs describe-task-definition  --task-definition ${TASK_FAMILY}     \
+                                              | egrep 'revision'                  \
+                                              | tr ',' ' '                        \
+                                              | awk '{print \$2}'                 \
+          "
+        ).trim()
+
+        def currentTask = sh (
+          returnStdout: true,
+          script:  "                                                              \
+            aws ecs list-tasks  --cluster ${CLUSTER_NAME}                          \
+                                --family ${TASK_FAMILY}                            \
+                                --output text                                     \
+                                | egrep 'TASKARNS'                                \
+                                | awk '{print \$2}'                               \
+          "
+        ).trim()
+
+        
+        if(currTaskDef) {
+          sh  "                                                                   \
+            aws ecs update-service  --cluster ${CLUSTER_NAME}                      \
+                                    --service ${SERVICE_NAME}                      \
+                                    --task-definition ${TASK_FAMILY}:${currTaskDef}\
+                                    --desired-count 0                             \
+          "
+        }
+        if (currentTask) {
+          sh "aws ecs stop-task --cluster ${CLUSTER_NAME} --task ${currentTask}"
+        }
+
+        // Register the new [TaskDefinition]
+        sh  "                                                                     \
+          aws ecs register-task-definition  --family ${TASK_FAMILY}                \
+                                            --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}        \
+        "
+
+        // Get the last registered [TaskDefinition#revision]
+        def taskRevision = sh (
+          returnStdout: true,
+          script:  "                                                              \
+            aws ecs describe-task-definition  --task-definition ${TASK_FAMILY}     \
+                                              | egrep 'revision'                  \
+                                              | tr ',' ' '                        \
+                                              | awk '{print \$2}'                 \
+          "
+        ).trim()
+
+        // ECS update service to use the newly registered [TaskDefinition#revision]
+        //
+        sh  "                                                                     \
+          aws ecs update-service  --cluster ${CLUSTER_NAME}                        \
+                                  --service ${SERVICE_NAME}                        \
+                                  --task-definition ${TASK_FAMILY}:${taskRevision} \
+                                  --desired-count 1                               \
+        "
                     }
                 }
             }
