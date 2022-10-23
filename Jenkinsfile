@@ -67,20 +67,22 @@ pipeline {
                 // update service
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh "aws ecs register-task-definition --family ${FAMILY} --container-definitions '[{ \"family\": \"${TASK_FAMILY}\",
-                            \"networkMode\": \"awsvpc\", \"executionRoleArn\": \"${EXECUTION_ROLE_ARN}\", \"containerDefinitions\": [{ 
-                                \"image\": \"${REPOSITORY_URI}:${IMAGE_TAG}\", 
-                                \"name\": \"${SERVICE_NAME}\", 
-                                \"cpu\": 512,  
-                                \"memory\": 1024, 
-                                \"essential\": true, 
-                                \"portMappings\": [{ 
-                                    \"containerPort\": 3000, 
-                                    \"hostPort\": 3000  
+                        sh '''
+                        aws ecs register-task-definition --family ${FAMILY} --container-definitions '[{ "family": "${TASK_FAMILY}",
+                            "networkMode": "awsvpc", "executionRoleArn": "${EXECUTION_ROLE_ARN}", "containerDefinitions": [{ 
+                                "image": "${REPOSITORY_URI}:${IMAGE_TAG}", 
+                                "name": "${SERVICE_NAME}", 
+                                "cpu": 512,  
+                                "memory": 1024, 
+                                "essential": true, 
+                                "portMappings": [{ 
+                                    "containerPort": 3000, 
+                                    "hostPort": 3000  
                                 }] } ], 
-                            \"requiresCompatibilities\": [\"FARGATE\"], 
-                            \"cpu\": \"512\", 
-                            \"memory\": \"1024\"}]'" 
+                            "requiresCompatibilities": ["FARGATE"], 
+                            "cpu": "512", 
+                            "memory": "1024"}]'
+                            ''' 
                     }
                 }
             }
