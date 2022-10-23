@@ -1,11 +1,11 @@
 {
-    "family": "%TASK_FAMILY%",
+    "family": "${TASK_FAMILY}",
     "networkMode": "awsvpc",
-    "executionRoleArn": "%EXECUTION_ROLE_ARN%",
+    "executionRoleArn": "${EXECUTION_ROLE_ARN}",
     "containerDefinitions": [
       {
-        "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
-        "name": "%SERVICE_NAME%",
+        "image": "${REPOSITORY_URI}:${IMAGE_TAG}",
+        "name": "${SERVICE_NAME}",
         "cpu": 1024,
         "memory": 256,
         "essential": true,
