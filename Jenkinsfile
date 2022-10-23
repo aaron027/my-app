@@ -77,20 +77,20 @@ pipeline {
                             {
                                 "image": "${REPOSITORY_URI}:${IMAGE_TAG}",
                                 "name": "${SERVICE_NAME}",
-                                "cpu": "512",
-                                "memory": "1024",
+                                "cpu": 512,
+                                "memory": 1024,
                                 "essential": true,
                                 "portMappings": [
                                 {
-                                    "containerPort": "3000",
-                                    "hostPort": "3000"
+                                    "containerPort": 3000,
+                                    "hostPort": 3000
                                 }
                                 ]
                             }
                             ],
                             "requiresCompatibilities": ["FARGATE"],
-                            "cpu": "512",
-                            "memory": "1024"
+                            "cpu": 512,
+                            "memory": 1024
                         }
                         ]'
                             ''' 
