@@ -69,8 +69,8 @@ pipeline {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                         sh  "                                                                     \
           sed -e  's;%IMAGE_TAG%;${IMAGE_TAG};g'                             \
-                  aws/task-definition.json >                                      \
-                  aws/task-definition-${IMAGE_TAG}.json                      \
+                  taskdef_template.json >                                      \
+                  taskdef_template.json-${IMAGE_TAG}.json                      \
         "
 
         // Get current [TaskDefinition#revision-number]
