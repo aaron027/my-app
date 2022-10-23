@@ -71,8 +71,8 @@ pipeline {
                     
                     sh  "                                                                     \
           sed -e  's;%IMAGE_TAG%;${IMAGE_TAG};g'                             \
-                  aws/task-definition.json >                                      \
-                  aws/task-definition-${IMAGE_TAG}.json                      \
+                  taskdef_template.json >                                      \
+                  taskdef_template.json-${IMAGE_TAG}.json                      \
         "
 
         // Get current [TaskDefinition#revision-number]
@@ -113,7 +113,7 @@ pipeline {
         // Register the new [TaskDefinition]
         sh  "                                                                     \
           aws ecs register-task-definition  --family ${TASK_FAMILY}                \
-                                            --cli-input-json ${taskDefile}        \
+                                            --cli-input-json ${AWS_ECS_TASK_DEFINITION_PATH}        \
         "
 
         // Get the last registered [TaskDefinition#revision]
