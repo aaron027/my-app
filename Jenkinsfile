@@ -68,7 +68,7 @@ pipeline {
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
                         sh '''
-                        aws ecs register-task-definition --container-definitions '[
+                        aws ecs register-task-definition --family ${TASK_FAMILY} --container-definitions '[
                             {
                             "family": "${TASK_FAMILY}",
                             "networkMode": "awsvpc",
