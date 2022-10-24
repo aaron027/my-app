@@ -72,7 +72,7 @@ pipeline {
                         def oldimageurl = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
                         sh "sed -i -e 's#${oldimageurl}#${newimageurl}#' ./taskdef_template.json"
                         sh "aws ecs register-task-definition --family ${TASK_FAMILY} --cli-input-json file://${WORKSPACE}/taskdef_template.json --region ${AWS_DEFAULT_REGION}"
-                        sh "aws ecs describe-task-definition --task-definition ${TASKDEF_NAME} --region ${AWS_DEFAULT_REGION} | jq .taskDefinition.revision > output.txt"
+                        sh "aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region ${AWS_DEFAULT_REGION} | jq .taskDefinition.revision > output.txt"
                         def REVISION = readFile "${WORKSPACE}/output.txt"
                         sh "aws ecs update-service --cluster ${CLUSTER_NAME} --region ${AWS_DEFAULT_REGION} --service ${SERVICE_NAME} --task-definition ${TASKDEF_NAME}:$REVISION"
                     }
