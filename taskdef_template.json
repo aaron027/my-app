@@ -1,7 +1,7 @@
 {
     "family": "junglemeet-task-dev",
     "networkMode": "awsvpc",
-    "executionRoleArn": "arn:aws:iam::026376606405:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::026376606405:role/myEcsTaskExecutionRole",
     "containerDefinitions": [
       {
         "image": "026376606405.dkr.ecr.us-east-1.amazonaws.com/myapp:latest",
