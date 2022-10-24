@@ -7,7 +7,7 @@ pipeline {
         IMAGE_TAG= sh(returnStdout: true, script: "git rev-parse --short=5 HEAD").trim()
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
         SERVICE_NAME = 'junglemeet-service-dev'
-        TASK_FAMILY="junglemeet-task-dev" // at least one container needs to have the same name as the task definition
+        TASK_FAMILY="junglemeet-task-dev" 
         DESIRED_COUNT="2"
         CLUSTER_NAME = "junglemeet-cluster-dev"
         EXECUTION_ROLE_ARN = "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
@@ -67,33 +67,12 @@ pipeline {
                 // update service
                 script {
                     withAWS(credentials: 'AWS_Credentials', region: 'us-east-1') {
-                        sh '''
-                        aws ecs register-task-definition --family ${TASK_FAMILY} --container-definitions '[
-                            {
-                            "family": "%TASK_FAMILY%",
-                            "networkMode": "awsvpc",
-                            "executionRoleArn": "%EXECUTION_ROLE_ARN%",
-                            "containerDefinitions": [
-                            {
-                                "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
-                                "name": "%SERVICE_NAME%",
-                                "cpu": 512,
-                                "memory": 1024,
-                                "essential": true,
-                                "portMappings": [
-                                {
-                                    "containerPort": 3000,
-                                    "hostPort": 3000
-                                }
-                                ]
-                            }
-                            ],
-                            "requiresCompatibilities": ["FARGATE"],
-                            "cpu": 512,
-                            "memory": 1024
-                        }
-                        ]'
-                            ''' 
+                        def newimageurl = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                        def oldimageurl = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+                        sh "sed -i -e 's#${oldimageurl}#${newimageurl}#' ./taskdef_template.json"
+                        sh "aws ecs register-task-definition --family ${TASK_FAMILY} --cli-input-json file://${WORKSPACE}/taskdef_template.json --region ${AWS_DEFAULT_REGION}"
+                        REVISION=$(aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region ${AWS_DEFAULT_REGION} | jq .taskDefinition.revision)
+                        sh "aws ecs update-service --cluster ${CLUSTER_NAME} --region ${AWS_DEFAULT_REGION} --service ${SERVICE_NAME} --task-definition ${TASK_FAMILY}:$REVISION"
                     }
                 }
             }

@@ -1,11 +1,11 @@
 {
-    "family": "%TASK_FAMILY%",
+    "family": "junglemeet-task-dev",
     "networkMode": "awsvpc",
-    "executionRoleArn": "%EXECUTION_ROLE_ARN%",
+    "executionRoleArn": "arn:aws:iam::026376606405:role/ecsTaskExecutionRole",
     "containerDefinitions": [
       {
-        "image": "%REPOSITORY_URI%:%IMAGE_TAG%",
-        "name": "%SERVICE_NAME%",
+        "image": "026376606405.dkr.ecr.us-east-1.amazonaws.com/myapp:latest",
+        "name": "junglemeet-service-dev",
         "cpu": 512,
         "memory": 1024,
         "essential": true,
