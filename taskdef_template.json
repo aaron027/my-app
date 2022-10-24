@@ -5,7 +5,7 @@
     "containerDefinitions": [
       {
         "image": "026376606405.dkr.ecr.us-east-1.amazonaws.com/myapp:latest",
-        "name": "junglemeet-service-dev",
+        "name": "junglemeet-container-dev",
         "cpu": 512,
         "memory": 1024,
         "essential": true,
