@@ -4,7 +4,7 @@
     "executionRoleArn": "arn:aws:iam::026376606405:role/myEcsTaskExecutionRole",
     "containerDefinitions": [
       {
-        "image": "026376606405.dkr.ecr.us-east-1.amazonaws.com/myapp",
+        "image": "026376606405.dkr.ecr.us-east-1.amazonaws.com/jm_backend",
         "name": "junglemeet-container-dev",
         "cpu": 512,
         "memory": 1024,
