@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         AWS_ACCOUNT_ID="026376606405"
+        
         AWS_DEFAULT_REGION="us-east-1" 
         IMAGE_REPO_NAME="jm_backend"
         IMAGE_TAG= sh(returnStdout: true, script: "git rev-parse --short=5 HEAD").trim()
